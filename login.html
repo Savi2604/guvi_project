@@ -11,17 +11,22 @@
     <div class="container d-flex align-items-center justify-content-center vh-100">
         <div class="card shadow p-4" style="max-width: 400px; width: 100%;">
             <h2 class="text-center mb-4">Login</h2>
+            
             <div class="mb-3">
                 <label for="login_email" class="form-label">Email address</label>
                 <input type="email" class="form-control" id="login_email" placeholder="name@example.com">
             </div>
+
             <div class="mb-3">
                 <label for="login_password" class="form-label">Password</label>
                 <input type="password" class="form-control" id="login_password" placeholder="Password">
-                <div id="loginPasswordError" class="text-danger small" style="display:none;"></div>
+                <div id="loginPasswordError" class="text-danger small mt-1" style="display:none;"></div>
             </div>
+
             <div id="msg" class="text-center mb-3 fw-bold"></div>
+
             <button onclick="submitLogin()" class="btn btn-primary w-100">Login</button>
+
             <div class="text-center mt-3">
                 <a href="register.html">Don't have an account? Register</a>
             </div>
