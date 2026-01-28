@@ -23,7 +23,7 @@ $(document).ready(function() {
         }
 
         $.ajax({
-            url: 'php_folder/register.php',
+            url: 'php_files/register.php',
             type: 'POST',
             data: JSON.stringify({ email: email, password: password }),
             contentType: 'application/json',
