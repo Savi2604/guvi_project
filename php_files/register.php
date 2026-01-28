@@ -49,6 +49,10 @@ try {
 } catch (Exception $e) {
     echo json_encode(['status' => 'error', 'message' => 'Database Error: ' . $e->getMessage()]);
 }
+if ($success) {
+    header("Location: ../login.html");
+    exit();
+}
 
 $mysql_conn->close();
 ?>

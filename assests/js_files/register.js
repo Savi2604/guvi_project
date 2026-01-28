@@ -27,11 +27,11 @@ $(document).ready(function() {
             contentType: 'application/json',
             dataType: 'json',
             success: function(response) {
-                // Inga dhaan neenga kaeta maadhiri function maathirukkaen
-                if(response.trim() == "success") {
+                // response string-aa irundhaalum illa object-aa irundhaalum idhu handle pannum
+                if(response == "success" || response.status == "success") {
                     window.location.href = "login.html"; 
                 } else {
-                    $("#msg").html(response);
+                    $("#msg").html(response.message || response);
                 }
             },
             error: function() {
