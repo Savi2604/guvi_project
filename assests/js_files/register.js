@@ -5,7 +5,6 @@ $(document).ready(function() {
         let errorDiv = $("#passwordError");
         let msgDiv = $("#msg");
 
-        
         errorDiv.hide().text("");
         msgDiv.text("");
 
@@ -14,7 +13,6 @@ $(document).ready(function() {
             return;
         }
 
-        
         let passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
         if (!passwordRegex.test(password)) {
@@ -29,11 +27,11 @@ $(document).ready(function() {
             contentType: 'application/json',
             dataType: 'json',
             success: function(response) {
-                if(response && response.status === 'success') {
-                    alert(response.message); 
+                // Inga dhaan neenga kaeta maadhiri function maathirukkaen
+                if(response.trim() == "success") {
                     window.location.href = "login.html"; 
                 } else {
-                    msgDiv.html("<span class='text-danger'>" + response.message + "</span>");
+                    $("#msg").html(response);
                 }
             },
             error: function() {
