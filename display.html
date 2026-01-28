@@ -13,6 +13,7 @@
             overflow: hidden;
             border-radius: 50%;
             border: 4px solid #17a2b8;
+            background-color: #f8f9fa; /* Background for placeholder */
         }
         .profile-pic-container img {
             width: 100%;
@@ -32,7 +33,7 @@
                 <div class="card-body text-center">
                     
                     <div class="profile-pic-container">
-                        <img id="d_image" src="https://via.placeholder.com/150" alt="Profile Picture">
+                        <img id="d_image" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6f8D8O2m8Xv3L-u-n_v0f_8Z6N_YqW2X6xA&s" alt="Profile Picture">
                     </div>
 
                     <div class="text-start px-4">
@@ -56,21 +57,24 @@
         let email = localStorage.getItem("userEmail");
         if(!email) { window.location.href = "login.html"; return; }
 
-        
-        $.get(`php_folder/profile.php?email=${email}`, function(res) {
-            if(res.status === 'success') {
+        // FIX: Folder path changed from php_folder to php_files
+        $.get(`php_files/profile.php?email=${email}`, function(res) {
+            if(res && res.status === 'success') {
                 $("#d_email").text(email);
-                $("#d_age").text(res.age);
-                $("#d_dob").text(res.dob);
-                $("#d_contact").text(res.contact);
+                $("#d_age").text(res.age || "N/A");
+                $("#d_dob").text(res.dob || "N/A");
+                $("#d_contact").text(res.contact || "N/A");
                 
-                
-                if(res.image) {
+                // Image display logic
+                if(res.image && res.image !== "") {
                     $("#d_image").attr("src", res.image);
                 }
             } else {
-                alert("No data found!");
+                console.log("No data found in MongoDB for this user.");
+                $("#d_email").text(email);
             }
+        }).fail(function() {
+            console.error("Error: Could not reach php_files/profile.php. Check your AWS folder structure.");
         });
     });
 </script>
