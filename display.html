@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .profile-pic-container {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 20px;
+            overflow: hidden;
+            border-radius: 50%;
+            border: 4px solid #17a2b8;
+            background-color: #f8f9fa; /* Background for placeholder */
+        }
+        .profile-pic-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body class="bg-light">
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-info text-white text-center">
+                    <h4>My Profile Details</h4>
+                </div>
+                <div class="card-body text-center">
+                    
+                    <div class="profile-pic-container">
+                        <img id="d_image" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6f8D8O2m8Xv3L-u-n_v0f_8Z6N_YqW2X6xA&s" alt="Profile Picture">
+                    </div>
+
+                    <div class="text-start px-4">
+                        <p><strong>Email:</strong> <span id="d_email"></span></p>
+                        <p><strong>Age:</strong> <span id="d_age"></span></p>
+                        <p><strong>DOB:</strong> <span id="d_dob"></span></p>
+                        <p><strong>Contact:</strong> <span id="d_contact"></span></p>
+                    </div>
+                    
+                    <hr>
+                    <a href="profile.html" class="btn btn-secondary w-100">Back to Profile</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+    $(document).ready(function() {
+        let email = localStorage.getItem("userEmail");
+        if(!email) { window.location.href = "login.html"; return; }
+
+        // FIX: Folder path changed from php_folder to php_files
+        $.get(`php_files/profile.php?email=${email}`, function(res) {
+            if(res && res.status === 'success') {
+                $("#d_email").text(email);
+                $("#d_age").text(res.age || "N/A");
+                $("#d_dob").text(res.dob || "N/A");
+                $("#d_contact").text(res.contact || "N/A");
+                
+                // Image display logic
+                if(res.image && res.image !== "") {
+                    $("#d_image").attr("src", res.image);
+                }
+            } else {
+                console.log("No data found in MongoDB for this user.");
+                $("#d_email").text(email);
+            }
+        }).fail(function() {
+            console.error("Error: Could not reach php_files/profile.php. Check your AWS folder structure.");
+        });
+    });
+</script>
+</body>
+</html>
