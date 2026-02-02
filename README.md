@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-MY latest project
-=======
 🚀 Excited to share my latest project: A Secure User Profile Management System on AWS!
 I’ve just completed a full-stack project that focuses on building a secure, scalable, and user-centric Profile Management System. This journey was a great deep dive into handling real-world challenges—from regex-based validation to cloud deployment.
 
@@ -30,5 +27,5 @@ Cloud: AWS (EC2, Security Groups, IAM best practices)
 
 Live Demo: http://13.60.201.55/register.html (Check out the Gmail-only validation here!)
 
-GitHub Repository: https://github.com/Savi2604/guvi_project.git
->>>>>>> 0f88c41d16d1e3b2048fb697c7035a675542856c
+GitHub Repository: [Unga GitHub link-ah inga paste pannunga]
+
