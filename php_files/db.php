@@ -1,6 +1,6 @@
 <?php
 
-$mysql_conn = new mysqli("localhost", "root", "", "guvi_project_db");
+$mysql_conn = new mysqli("localhost", "root", "123456", "guvi_project_db");
 if ($mysql_conn->connect_error) { 
     die(json_encode(["status" => "error", "message" => "MySQL Connection Failed"])); 
 }
