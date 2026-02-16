@@ -7,13 +7,15 @@ $(document).ready(function() {
         // UI-ah reset panrom
         msgDiv.text("");
 
-        // 1. Strict Email Regex - Strictly JQuery validation (Not HTML)
-        // Idhu dhaan "@gmail.co" illa ".c" mistakes-ah alert moolama thadukkum
-        let emailRegex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
-        if (!emailRegex.test(email)) {
-            alert("Invalid email format! Example: user@gmail.com (Check if you missed @ or used .c)");
-            msgDiv.html("<span class='text-danger'>Please enter a valid email.</span>");
-            return; // Validation fail aana AJAX execute aagathu
+        // 1. VERY STRICT @gmail.com Regex
+        // Idhu "@gmail.co" illa vera endha domain-aiyum allow pannaadhu.
+        // Exact-aa "@gmail.com" nu irundha mattum dhaan logic mela pogum.
+        let gmailRegex = /^[a-z0-9](\.?[a-z0-9]){5,}@gmail\.com$/;
+        
+        if (!gmailRegex.test(email)) {
+            alert("Error: Strictly only @gmail.com addresses are allowed!");
+            msgDiv.html("<span class='text-danger'>Please use a valid @gmail.com email.</span>");
+            return; // Inga dhaan logic stop aagum, AJAX execute aagaadhu
         }
 
         // 2. Strong Password Validation
