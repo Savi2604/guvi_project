@@ -1,5 +1,4 @@
 function submitLogin() {
-    // Correct IDs matching the HTML
     let email = $("#login_email").val();
     let password = $("#login_password").val();
     let msgDiv = $("#msg");
@@ -9,7 +8,7 @@ function submitLogin() {
     msgDiv.text("");
     loginError.hide().text("");
 
-    // Regex for Raja@123 validation
+    // Regex validation
     let passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
     if (!passwordRegex.test(password)) {
@@ -23,15 +22,20 @@ function submitLogin() {
         data: JSON.stringify({ email: email, password: password }),
         contentType: 'application/json',
         dataType: 'json',
-        success: function(res) {
-            if(res.status === 'success') {
+        success: function(response) {
+            if(response.status == "success") {
+                // Token management
+                localStorage.removeItem("token");
+                localStorage.setItem("token", response.token); 
                 localStorage.setItem("userEmail", email);
+
                 alert("Login Successful!");
                 window.location.href = "profile.html";
             } else {
-                msgDiv.text(res.message).css("color", "red");
+                // FIXED: Changed 'res' to 'response'
+                msgDiv.text(response.message).css("color", "red");
             }
-        },
+        }, // FIXED: Success function brackets closed correctly here
         error: function() {
             msgDiv.text("Server Error! Check if php_files/login.php exists.").css("color", "red");
         }

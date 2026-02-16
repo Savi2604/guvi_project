@@ -11,14 +11,13 @@ $(document).ready(function() {
     $("#user_email_display").text(email);
 
     // 2. Fetch Existing Data
-    // Folder name 'php_files' nu path-ah fix pannirukaen
     $.get(`php_files/profile.php?email=${email}`, function(res) {
         if(res && res.status === 'success') {
+            $("#fullName").val(res.name); // Added Name Fetch
             $("#age").val(res.age);
             $("#dob").val(res.dob);
             $("#contact").val(res.contact);
             
-            // Image data irundha card-la preview kaattum
             if(res.image) {
                 $("#preview").attr("src", res.image);
                 base64Image = res.image; 
@@ -29,14 +28,13 @@ $(document).ready(function() {
     });
 
     // 3. Image Preview Logic
-    // Indha logic dhaan image select panna udane card-la display pannum
     $("#imageInput").change(function() {
         let file = this.files[0];
         if (file) {
             let reader = new FileReader();
             reader.onload = function(e) {
                 base64Image = e.target.result; 
-                $("#preview").attr("src", base64Image); // Local preview display
+                $("#preview").attr("src", base64Image); 
             };
             reader.readAsDataURL(file);
         }
@@ -46,6 +44,7 @@ $(document).ready(function() {
     $("#updateBtn").click(function() {
         let profileData = {
             email: email,
+            name: $("#fullName").val(), // Added Name to payload
             age: $("#age").val(),
             dob: $("#dob").val(),
             contact: $("#contact").val(),

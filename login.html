@@ -14,12 +14,15 @@
             
             <div class="mb-3">
                 <label for="login_email" class="form-label">Email address</label>
-                <input type="email" class="form-control" id="login_email" placeholder="name@example.com">
+                <input type="email" class="form-control" id="login_email" 
+                       placeholder="name@example.com" required
+                       pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                       title="Please enter a valid email address (e.g., user@gmail.com)">
             </div>
 
             <div class="mb-3">
                 <label for="login_password" class="form-label">Password</label>
-                <input type="password" class="form-control" id="login_password" placeholder="Password">
+                <input type="password" class="form-control" id="login_password" placeholder="Password" required>
                 <div id="loginPasswordError" class="text-danger small mt-1" style="display:none;"></div>
             </div>
 
