@@ -1,5 +1,4 @@
 $(document).ready(function() {
-    // 100% Strictly JQuery Click Event
     $("#loginBtn").click(function() {
         submitLogin();
     });
@@ -9,29 +8,18 @@ function submitLogin() {
     let email = $("#login_email").val().trim();
     let password = $("#login_password").val().trim();
     let msgDiv = $("#msg");
-    let loginError = $("#loginPasswordError");
 
-    // UI Reset
-    msgDiv.text("");
-    loginError.hide().text("");
-
-    // 1. Strict Email Regex Validation (Pure JQuery)
-    // Idhu dhaan "@gmail.co" illa ".c" mistakes-ah alert moolama thadukkum
-    let emailRegex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
-    if (!emailRegex.test(email)) {
-        alert("Invalid email format! Example: user@gmail.com");
-        msgDiv.text("Invalid format! (e.g., .com, .in)").css("color", "red");
-        return; // Validation fail aana AJAX pogadhu
+    // 1. VERY STRICT Email Regex - Only allows @gmail.com
+    // Idhu .co, .c, illa vera endha domain-aiyum allow pannaadhu
+    let strictGmailRegex = /^[a-z0-9](\.?[a-z0-9]){5,}@gmail\.com$/;
+    
+    if (!strictGmailRegex.test(email)) {
+        alert("Error: Only @gmail.com addresses are allowed!");
+        msgDiv.text("Strictly use @gmail.com format").css("color", "red");
+        return; // Inga dhaan process stop aagum
     }
 
-    // 2. Strong Password Validation
-    let passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    if (!passwordRegex.test(password)) {
-        loginError.text("Invalid Password format! Use Uppercase, Lowercase, Number & Symbol (Min 8).").show();
-        return;
-    }
-
-    // 3. AJAX Login Request (Dynamic Token Refresh)
+    // 2. AJAX POST Request
     $.ajax({
         url: 'php_files/login.php', 
         type: 'POST',
@@ -40,24 +28,24 @@ function submitLogin() {
         dataType: 'json',
         success: function(response) {
             if(response.status === "success") {
-                // 4. Proper Token Refresh Logic
-                // Pazhaya session-ah clear panniட்டு, backend-la irundhu vara NEW token-ah set panrom
+                // Token refresh logic
                 localStorage.clear(); 
-                localStorage.setItem("token", response.token); 
-                localStorage.setItem("userEmail", email);
-
-                console.log("New Dynamic Token Set: ", response.token);
                 
-                alert("Login Successful!");
-                window.location.href = "profile.html";
+                // Server-la irundhu token vandha mattum dhaan set pannum
+                if(response.token) {
+                    localStorage.setItem("token", response.token); 
+                    localStorage.setItem("userEmail", email);
+                    alert("Login Successful! New Token Generated.");
+                    window.location.href = "profile.html";
+                } else {
+                    alert("Server Error: Token not generated. Check login.php logic.");
+                }
             } else {
-                // Backend-la credentials match aagalana "Invalid Credentials" alert
-                alert(response.message);
-                msgDiv.text(response.message).css("color", "red");
+                alert(response.message); // "Invalid Credentials" alert
             }
         },
         error: function() {
-            msgDiv.text("Server Error! Check your PHP file path.").css("color", "red");
+            alert("Fatal Error: Could not reach login.php. Check your AWS server.");
         }
     });
 }
