@@ -1,5 +1,4 @@
 $(document).ready(function() {
-    // Strictly No Form Submit - Button Click Only
     $("#loginBtn").click(function() {
         submitLogin();
     });
@@ -10,21 +9,13 @@ function submitLogin() {
     let password = $("#login_password").val().trim();
     let msgDiv = $("#msg");
 
-    // UI Reset
-    msgDiv.text("");
-
-    // 1. VERY STRICT Email Regex - Only allows @gmail.com
-    // Idhu "@gmail.co" illa ".c" mistakes-ah alert moolama thadukkum
-    // Oru letter miss aanaalum alert trigger aagum
-    let strictGmailRegex = /^[a-z0-9](\.?[a-z0-9]){5,}@gmail\.com$/;
-    
-    if (!strictGmailRegex.test(email)) {
-        alert("Error: Strictly only @gmail.com addresses are allowed!");
-        msgDiv.text("Only @gmail.com is allowed").css("color", "red");
-        return; // Validation fail aana process stop aagum
+    // 1. Strict @gmail.com Check
+    let gmailRegex = /^[a-z0-9](\.?[a-z0-9]){5,}@gmail\.com$/;
+    if (!gmailRegex.test(email)) {
+        alert("Error: Only @gmail.com is allowed!");
+        return;
     }
 
-    // 2. AJAX POST Request - Sending data as JSON
     $.ajax({
         url: 'php_files/login.php', 
         type: 'POST',
@@ -33,30 +24,27 @@ function submitLogin() {
         dataType: 'json',
         success: function(response) {
             if(response.status === "success") {
-                // 3. Token Refresh Logic
-                // Pazhaya session-ah clear pannittu fresh token set panrom
+                // 2. DYNAMIC TOKEN REFRESH logic
+                // Pazhaya token-ah kandaipaa clear panniட்டு fresh-aa start panrom
                 localStorage.clear(); 
                 
-                // Server-la irundhu token vandha mattum dhaan store pannum
+                // Backend (login.php) anupura NEW token-ah ippo store panrom
                 if(response.token) {
                     localStorage.setItem("token", response.token); 
                     localStorage.setItem("userEmail", email);
                     
                     console.log("New Token Generated: ", response.token); // Debugging-ku
                     alert("Login Successful! New Token Generated.");
-                    window.location.href = "profile.html";
+                    window.location.href = "display.html"; // Profile detail-ku redirect
                 } else {
-                    // Idhu unga "Token not generated" prachinaiyai identify panna help pannum
-                    alert("Server Error: Token not generated in login.php response.");
+                    alert("Server Error: Token was not generated in login.php!");
                 }
             } else {
-                // Invalid credentials alert
-                alert(response.message);
-                msgDiv.text(response.message).css("color", "red");
+                alert(response.message); // Invalid credentials logic
             }
         },
         error: function() {
-            alert("Fatal Error: Could not reach login.php. Check your AWS server path.");
+            alert("Fatal Error: Could not reach server. Check AWS connection.");
         }
     });
 }
