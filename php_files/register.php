@@ -8,22 +8,32 @@ $data = json_decode(file_get_contents('php://input'), true);
 $email = $data['email'] ?? '';
 $password = $data['password'] ?? '';
 
+// 1. Basic Empty Check
 if (empty($email) || empty($password)) {
     echo json_encode(['status' => 'error', 'message' => 'Email and Password are required!']);
     exit;
 }
 
-$regex = "/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/";
+// 2. Email Format Validation (Backend Check)
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    echo json_encode(['status' => 'error', 'message' => 'Invalid email format! Please use name@example.com']);
+    exit;
+}
+
+// 3. Strong Password Validation (Min 8 chars, 1 Number, 1 Special Character)
+// Note: Frontend JS/HTML logic-ku match aagura maadhiri regex maathiyirukaen
+$regex = "/^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/";
 
 if (!preg_match($regex, $password)) {
     echo json_encode([
         'status' => 'error', 
-        'message' => 'Password too weak! Must have 8+ chars, Uppercase, Lowercase, Number and Special character.'
+        'message' => 'Password too weak! Needs 8+ chars, 1 Number and 1 Special character.'
     ]);
     exit;
 }
 
 try {
+    // Check if user already exists
     $checkStmt = $mysql_conn->prepare("SELECT id FROM users WHERE email = ?");
     $checkStmt->bind_param("s", $email);
     $checkStmt->execute();
@@ -36,6 +46,7 @@ try {
     }
     $checkStmt->close();
 
+    // Insert new user
     $stmt = $mysql_conn->prepare("INSERT INTO users (email, password) VALUES (?, ?)");
     $stmt->bind_param("ss", $email, $password);
     
@@ -49,10 +60,7 @@ try {
 } catch (Exception $e) {
     echo json_encode(['status' => 'error', 'message' => 'Database Error: ' . $e->getMessage()]);
 }
-if ($success) {
-    header("Location: ../login.html");
-    exit();
-}
 
+// AJAX use panradhaala header redirection inga thevai illai
 $mysql_conn->close();
 ?>
