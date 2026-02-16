@@ -1,9 +1,9 @@
 $(document).ready(function() {
     let email = localStorage.getItem("userEmail");
-    let token = localStorage.getItem("token"); // Dynamic Token fetch panninom
+    let token = localStorage.getItem("token"); // Dynamic Token fetch
     let base64Image = ""; 
 
-    // 1. Session Check (Token and Email check)
+    // 1. Session Check (Redirect to login if token is missing)
     if(!email || !token) {
         localStorage.clear();
         window.location.href = "login.html";
@@ -12,16 +12,16 @@ $(document).ready(function() {
 
     $("#user_email_display").text(email);
 
-    // 2. Fetch Existing Data (Using your file: view_profile.php)
-    // Strictly JQuery AJAX POST
+    // 2. Fetch Existing Data (Using view_profile.php as per your folder)
+    // Strictly JQuery AJAX POST for security and token verification
     $.ajax({
-        url: 'php_files/view_profile.php', // URL maathiyaachu
+        url: 'php_files/view_profile.php', // Path updated here
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify({ email: email, token: token }),
         success: function(res) {
             if(res && res.status === 'success') {
-                // Name fetch logic fixed for Display
+                // Name fetch logic - MongoDB-la irundhu fullName fetch aagum
                 $("#fullName").val(res.data.fullName || res.data.name); 
                 $("#age").val(res.data.age);
                 $("#dob").val(res.data.dob);
@@ -34,12 +34,12 @@ $(document).ready(function() {
             }
         },
         error: function() {
-            // Profile details fetch aagala-na token expire aayirukkum
-            console.log("Error: Token expired or view_profile.php not reachable.");
+            // Error handle: Session expired or file not found
+            console.log("Error: Profile data could not be reached. Check view_profile.php path.");
         }
     });
 
-    // 3. Image Preview Logic (Simple FileReader)
+    // 3. Image Preview Logic
     $("#imageInput").change(function() {
         let file = this.files[0];
         if (file) {
@@ -52,18 +52,18 @@ $(document).ready(function() {
         }
     });
 
-    // 4. Update Action (Strictly JQuery AJAX - No Form)
+    // 4. Update Action (Strictly JQuery AJAX - No Form Tag)
     $("#updateBtn").click(function() {
-        // Email format check once again before update
+        // Email validation check before update
         let emailRegex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
         if (!emailRegex.test(email)) {
-            alert("Session email is invalid. Please login again.");
+            alert("Invalid session. Please login again.");
             return;
         }
 
         let profileData = {
             email: email,
-            token: token, // Refresh aana pudhu token
+            token: token, // Refresh aana dynamic token
             fullName: $("#fullName").val(), 
             age: $("#age").val(),
             dob: $("#dob").val(),
@@ -81,25 +81,25 @@ $(document).ready(function() {
                 $("#msg").text("Update Successful!").css("color", "green");
             },
             error: function() {
-                alert("Update failed. Check your AWS server logs.");
+                alert("Update failed. Check AWS server logs.");
                 $("#msg").text("Update Failed!").css("color", "red");
             }
         });
     });
 
-    // 5. Navigation to Display Page
+    // 5. Navigation to Display Details
     $("#viewProfileBtn").click(function() {
         let currentName = $("#fullName").val();
         if(!currentName) {
-            alert("Update your name first to see it in profile details!");
+            alert("Please update your name first!");
         } else {
-            // Redirects to display.html where name will be shown
+            // Redirect to display.html to see final details
             window.location.href = "display.html"; 
         }
     });
 });
 
-// 6. Logout Function (Security: Clear all storage)
+// 6. Logout Function (Clear session security)
 function logout() {
     localStorage.clear(); 
     window.location.href = "login.html";
