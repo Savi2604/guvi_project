@@ -31,7 +31,7 @@
                     </div>
 
                     <div class="text-start px-4">
-                        <p><strong>Name:</strong> <span id="d_name" class="fw-bold text-primary"></span></p>
+                        <p><strong>Name:</strong> <span id="d_name" class="fw-bold text-primary">Loading...</span></p>
                         <p><strong>Email:</strong> <span id="d_email"></span></p>
                         <p><strong>Age:</strong> <span id="d_age"></span></p>
                         <p><strong>DOB:</strong> <span id="d_dob"></span></p>
@@ -49,20 +49,29 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script>
     $(document).ready(function() {
+        // 1. Fetching the FRESH token generated during login
         let email = localStorage.getItem("userEmail");
-        let token = localStorage.getItem("token"); // Token verification for security
+        let token = localStorage.getItem("token");
 
-        if(!email || !token) { window.location.href = "login.html"; return; }
+        // 2. Strict Security: If no token, redirect to login
+        if(!email || !token) { 
+            alert("Security: No active session found. Please login.");
+            window.location.href = "login.html"; 
+            return; 
+        }
 
-        // Strictly fetching from view_profile.php to get Name from MongoDB
+        console.log("Using Token for Fetch:", token); // Checking if it's dynamic
+
+        // 3. AJAX Request - Sending Dynamic Token to Backend
         $.ajax({
             url: 'php_files/view_profile.php',
             type: 'POST',
             contentType: 'application/json',
-            data: JSON.stringify({ email: email, token: token }),
+            dataType: 'json',
+            data: JSON.stringify({ email: email, token: token }), // Both sent for Redis verification
             success: function(res) {
                 if(res && res.status === 'success') {
-                    // Setting data to HTML elements
+                    // Update HTML with MongoDB data
                     $("#d_name").text(res.data.fullName || res.data.name || "User Name");
                     $("#d_email").text(email);
                     $("#d_age").text(res.data.age || "N/A");
@@ -73,12 +82,15 @@
                         $("#d_image").attr("src", res.data.image);
                     }
                 } else {
-                    alert("Session expired! Please login again.");
+                    // 4. Token Mismatch Fix: If token is old, force re-login
+                    alert("Session expired or Invalid Token! Please login again.");
+                    localStorage.clear(); // Removing old/bad token
                     window.location.href = "login.html";
                 }
             },
             error: function() {
-                console.error("Error: Could not reach view_profile.php");
+                console.error("Fatal Error: Could not reach view_profile.php. Check server path.");
+                alert("Server Error! Check if view_profile.php exists.");
             }
         });
     });
