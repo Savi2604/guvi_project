@@ -6,10 +6,10 @@ $(document).ready(function() {
 
         msgDiv.text("");
 
-        // Manual Email Validation (Prevents .c errors)
+        // Strict Email Format - Block mistakes like .c or missing @
         let emailRegex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
         if (!emailRegex.test(email)) {
-            msgDiv.html("<span class='text-danger'>Invalid email format! (e.g., .com, .in)</span>");
+            msgDiv.html("<span class='text-danger'>Invalid Email! Use format like name@gmail.com</span>");
             return;
         }
 
@@ -20,6 +20,7 @@ $(document).ready(function() {
             return;
         }
 
+        // AJAX POST - Strictly No Form Submit
         $.ajax({
             url: 'php_files/register.php',
             type: 'POST',
