@@ -1,39 +1,25 @@
 $(document).ready(function() {
     $("#registerBtn").click(function() {
-        let emailInput = document.getElementById("email");
-        let passwordInput = document.getElementById("password");
-        
-        let email = $("#email").val();
-        let password = $("#password").val();
-        let errorDiv = $("#passwordError");
+        let email = $("#email").val().trim();
+        let password = $("#password").val().trim();
         let msgDiv = $("#msg");
 
-        errorDiv.hide().text("");
         msgDiv.text("");
 
-        // 1. Email Format Validation (HTML pattern logic-ah use pannudhu)
-        if (!emailInput.checkValidity()) {
-            emailInput.reportValidity();
+        // Manual Email Validation (Prevents .c errors)
+        let emailRegex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
+        if (!emailRegex.test(email)) {
+            msgDiv.html("<span class='text-danger'>Invalid email format! (e.g., .com, .in)</span>");
             return;
         }
 
-        // 2. Empty Field Check
-        if(!email || !password) {
-            msgDiv.html("<span class='text-danger'>Please fill all fields!</span>");
-            return;
-        }
-
-        // 3. Strong Password Validation (Min 8 chars, 1 Number, 1 Symbol)
-        // Note: HTML-la namba potta pattern-ku match aavaen ippo idhu update panni irukaen.
+        // Strong Password Validation
         let passwordRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/;
-
         if (!passwordRegex.test(password)) {
-            errorDiv.text("Needs 8+ chars, 1 Number & 1 Symbol.").show();
-            passwordInput.focus();
+            msgDiv.html("<span class='text-danger'>Password needs 8+ chars, 1 Number & 1 Symbol.</span>");
             return;
         }
 
-        // AJAX call starts here
         $.ajax({
             url: 'php_files/register.php',
             type: 'POST',
@@ -41,14 +27,12 @@ $(document).ready(function() {
             contentType: 'application/json',
             dataType: 'json',
             success: function(response) {
-                if(response == "success" || response.status == "success") {
+                if(response.status === "success") {
+                    alert("Registration Successful!");
                     window.location.href = "login.html"; 
                 } else {
-                    $("#msg").html(response.message || response);
+                    msgDiv.html("<span class='text-danger'>" + response.message + "</span>");
                 }
-            },
-            error: function() {
-                msgDiv.html("<span class='text-danger'>Server Error!</span>");
             }
         });
     });

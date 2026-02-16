@@ -1,33 +1,44 @@
 $(document).ready(function() {
     let email = localStorage.getItem("userEmail");
+    let token = localStorage.getItem("token"); // Token fetch panninom
     let base64Image = ""; 
 
-    // 1. Session Check
-    if(!email) {
+    // 1. Session Check (Token irukka-nu check pannanum)
+    if(!email || !token) {
+        localStorage.clear();
         window.location.href = "login.html";
         return;
     }
 
     $("#user_email_display").text(email);
 
-    // 2. Fetch Existing Data
-    $.get(`php_files/profile.php?email=${email}`, function(res) {
-        if(res && res.status === 'success') {
-            $("#fullName").val(res.name); // Added Name Fetch
-            $("#age").val(res.age);
-            $("#dob").val(res.dob);
-            $("#contact").val(res.contact);
-            
-            if(res.image) {
-                $("#preview").attr("src", res.image);
-                base64Image = res.image; 
+    // 2. Fetch Existing Data from MongoDB (Strictly AJAX)
+    // GET request-kku badhula POST use pannuvom security-kaga (Token verification)
+    $.ajax({
+        url: 'php_files/get_profile.php',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ email: email, token: token }),
+        success: function(res) {
+            if(res && res.status === 'success') {
+                // Name fetch logic fixed
+                $("#fullName").val(res.data.fullName || res.data.name); 
+                $("#age").val(res.data.age);
+                $("#dob").val(res.data.dob);
+                $("#contact").val(res.data.contact);
+                
+                if(res.data.image) {
+                    $("#preview").attr("src", res.data.image);
+                    base64Image = res.data.image; 
+                }
             }
+        },
+        error: function() {
+            console.log("Error: Could not reach profile data. Token might be expired.");
         }
-    }).fail(function() {
-        console.log("Error: Could not reach profile.php. Check folder name.");
     });
 
-    // 3. Image Preview Logic
+    // 3. Image Preview Logic (Requirement: Keep it simple)
     $("#imageInput").change(function() {
         let file = this.files[0];
         if (file) {
@@ -40,11 +51,12 @@ $(document).ready(function() {
         }
     });
 
-    // 4. Update Action (AJAX POST)
+    // 4. Update Action (Strictly JQuery AJAX - No Form)
     $("#updateBtn").click(function() {
         let profileData = {
             email: email,
-            name: $("#fullName").val(), // Added Name to payload
+            token: token, // Sending token for verification
+            fullName: $("#fullName").val(), 
             age: $("#age").val(),
             dob: $("#dob").val(),
             contact: $("#contact").val(),
@@ -57,24 +69,30 @@ $(document).ready(function() {
             contentType: 'application/json',
             data: JSON.stringify(profileData),
             success: function(response) { 
-                alert("Profile and Image Updated in MongoDB!");
+                alert("Profile Updated in MongoDB Successfully!");
                 $("#msg").text("Update Successful!").css("color", "green");
             },
             error: function() {
-                alert("Error updating profile. Check if php_files/profile.php exists.");
+                alert("Error updating profile. Check server logs.");
                 $("#msg").text("Update Failed!").css("color", "red");
             }
         });
     });
 
-    // 5. Navigation
+    // 5. View Profile Details Fix (Shows Name in alert or display)
     $("#viewProfileBtn").click(function() {
-        window.location.href = "display.html"; 
+        let currentName = $("#fullName").val();
+        if(!currentName) {
+            alert("Please update your profile name first!");
+        } else {
+            // Requirement-padi display.html-ku redirect pannalam
+            window.location.href = "display.html"; 
+        }
     });
 });
 
-// 6. Logout Function
+// 6. Logout Function (Clears Token and Email)
 function logout() {
-    localStorage.removeItem("userEmail");
+    localStorage.clear(); // Entirely clear local storage for security
     window.location.href = "login.html";
 }
