@@ -15,12 +15,15 @@ try {
     $user_profile = $profile_db->findOne(['email' => $email]);
 
     if ($user_profile) {
-        // --- NAME KEY DISCOVERY ---
+        // --- 100% NAME FINDER LOGIC ---
         $foundName = 'N/A';
         
-        // MongoDB-la neenga oru vaelai 'fullname', 'Name', illa 'fname' nu save panniyirukkalaam
-        // Inga irukka list-la illadha field-ah kooda idhu catch pannum
-        $possibleKeys = ['name', 'fullName', 'full_name', 'username', 'user_name', 'fname', 'fullname', 'Name', 'FullName'];
+        // MongoDB-la neenga enna key kuduthurundhaalum idhu kandupidiikkum
+        $possibleKeys = [
+            'name', 'fullName', 'full_name', 'username', 
+            'user_name', 'fname', 'fullname', 'Name', 
+            'FullName', 'display_name', 'user'
+        ];
         
         foreach ($possibleKeys as $key) {
             if (isset($user_profile[$key]) && !empty($user_profile[$key])) {
