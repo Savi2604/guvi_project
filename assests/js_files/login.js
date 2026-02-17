@@ -8,10 +8,7 @@ $(document).ready(function() {
 function submitLogin() {
     let email = $("#login_email").val().trim();
     let password = $("#login_password").val().trim();
-    let msgDiv = $("#msg");
-
-    msgDiv.text("");
-
+    
     // 1. Gmail Validation
     let gmailRegex = /^[a-z0-9](\.?[a-z0-9]){5,}@gmail\.com$/;
     if (!gmailRegex.test(email)) {
@@ -30,20 +27,23 @@ function submitLogin() {
 
             if(response.status === "success") {
                 if(response.token) {
-                    // STEP-A: Conflict varaama irukka pazhaya data-ah clear pannuvom
+                    // STEP 1: Conflict varaama irukka clear pannuvom
                     localStorage.removeItem("token");
                     localStorage.removeItem("userEmail");
 
-                    // STEP-B: Ippo fresh-aa rendu values-ahyum set pannuvom
+                    // STEP 2: Fresh-aa set pannuvom
                     localStorage.setItem("token", response.token); 
                     localStorage.setItem("userEmail", email);
                     
-                    console.log("Storage Sync Success! Email: ", email);
+                    // Console-la check panna
+                    console.log("Storage Updated! Email: ", localStorage.getItem("userEmail"));
 
-                    alert("Login Successful!");
+                    // STEP 3: Oru 200ms delay kuduthu redirect pannuvom
+                    // Idhu browser storage register aaga time kudukkum
+                    setTimeout(function() {
+                        window.location.href = "profile.html"; 
+                    }, 200);
                     
-                    // STEP-C: Redirect to profile.html
-                    window.location.href = "profile.html"; 
                 } else {
                     alert("Server Error: Token not found in response.");
                 }
@@ -53,7 +53,7 @@ function submitLogin() {
         },
         error: function(xhr, status, error) {
             console.error("AJAX Error:", status, error);
-            alert("Fatal Error: Server-ah reach panna mudiyala. Check AWS IP or Path.");
+            alert("Fatal Error: Server-ah reach panna mudiyala.");
         }
     });
 }
