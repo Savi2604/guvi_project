@@ -18,7 +18,8 @@
                     <div class="card-body">
                         <div class="mb-3">
                             <label class="form-label">Email address</label>
-                            <input type="email" id="email" class="form-control" placeholder="name@example.com" required>
+                            <input type="email" id="email" class="form-control" placeholder="example@gmail.com" required>
+                            <p id="emailError" class="text-danger small mt-1" style="display:none;">Please use a valid @gmail.com email.</p>
                         </div>
 
                         <div class="mb-3">
@@ -38,6 +39,42 @@
     </div>
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="assests/js_files/register.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("#registerBtn").click(function() {
+                let email = $("#email").val().trim().toLowerCase();
+                let password = $("#password").val();
+                
+                // 1. Gmail Validation (As per your error screenshot)
+                if (!email.endsWith("@gmail.com")) {
+                    alert("Error: Strictly only @gmail.com addresses are allowed!");
+                    return;
+                }
+
+                // 2. Password Regex
+                let passRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/;
+                if (!passRegex.test(password)) {
+                    alert("Password too weak! Needs 8+ chars, 1 Number and 1 Special character.");
+                    return;
+                }
+
+                // AJAX Request
+                $.ajax({
+                    url: 'php_files/register.php',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ email: email, password: password }),
+                    success: function(res) {
+                        if (res.status === 'success') {
+                            alert(res.message);
+                            window.location.href = "login.html";
+                        } else {
+                            $("#msg").html(`<span class='text-danger'>${res.message}</span>`);
+                        }
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

@@ -5,7 +5,7 @@ ob_clean();
 header('Content-Type: application/json');
 
 $data = json_decode(file_get_contents('php://input'), true);
-$email = $data['email'] ?? '';
+$email = strtolower(trim($data['email'] ?? ''));
 $password = $data['password'] ?? '';
 
 // 1. Basic Empty Check
@@ -14,16 +14,14 @@ if (empty($email) || empty($password)) {
     exit;
 }
 
-// 2. Email Format Validation (Backend Check)
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    echo json_encode(['status' => 'error', 'message' => 'Invalid email format! Please use name@example.com']);
+// 2. STRICT GMAIL CHECK (Matching your requirement)
+if (!preg_match('/^[a-z0-9._%+-]+@gmail\.com$/', $email)) {
+    echo json_encode(['status' => 'error', 'message' => 'Error: Strictly only @gmail.com addresses are allowed!']);
     exit;
 }
 
-// 3. Strong Password Validation (Min 8 chars, 1 Number, 1 Special Character)
-// Note: Frontend JS/HTML logic-ku match aagura maadhiri regex maathiyirukaen
+// 3. Strong Password Validation
 $regex = "/^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/";
-
 if (!preg_match($regex, $password)) {
     echo json_encode([
         'status' => 'error', 
@@ -33,7 +31,7 @@ if (!preg_match($regex, $password)) {
 }
 
 try {
-    // Check if user already exists
+    // User already exists check
     $checkStmt = $mysql_conn->prepare("SELECT id FROM users WHERE email = ?");
     $checkStmt->bind_param("s", $email);
     $checkStmt->execute();
@@ -61,6 +59,5 @@ try {
     echo json_encode(['status' => 'error', 'message' => 'Database Error: ' . $e->getMessage()]);
 }
 
-// AJAX use panradhaala header redirection inga thevai illai
 $mysql_conn->close();
 ?>
