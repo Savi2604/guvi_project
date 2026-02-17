@@ -17,15 +17,19 @@
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" id="fullname" class="form-control" placeholder="Enter your name" required>
+                        </div>
+
+                        <div class="mb-3">
                             <label class="form-label">Email address</label>
                             <input type="email" id="email" class="form-control" placeholder="example@gmail.com" required>
-                            <p id="emailError" class="text-danger small mt-1" style="display:none;">Please use a valid @gmail.com email.</p>
+                            <p id="emailError" class="text-danger small mt-1" style="display:none;">Must start with a small letter and end with @gmail.com</p>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Password</label>
                             <input type="password" id="password" class="form-control" placeholder="Min 8 characters, 1 number & 1 symbol" required>
-                            <div id="passwordError" class="text-danger small mt-1" style="display:none;"></div>
                         </div>
 
                         <button id="registerBtn" class="btn btn-primary w-100">Register</button>
@@ -42,12 +46,21 @@
     <script>
         $(document).ready(function() {
             $("#registerBtn").click(function() {
-                let email = $("#email").val().trim().toLowerCase();
+                let name = $("#fullname").val().trim();
+                let email = $("#email").val().trim(); // toLowerCase() removed for strict check
                 let password = $("#password").val();
                 
-                // 1. Gmail Validation (As per your error screenshot)
-                if (!email.endsWith("@gmail.com")) {
-                    alert("Error: Strictly only @gmail.com addresses are allowed!");
+                // 1. STRICT EMAIL VALIDATION 
+                // Rule: Starts with small letter [a-z], followed by small letters/numbers/special chars, ends with @gmail.com
+                let emailRegex = /^[a-z][a-z0-9._%+-]*@gmail\.com$/;
+
+                if (name === "") {
+                    alert("Please enter your name!");
+                    return;
+                }
+
+                if (!emailRegex.test(email)) {
+                    alert("Error: Email must start with a small letter, use only lowercase, and end with @gmail.com!");
                     return;
                 }
 
@@ -63,7 +76,11 @@
                     url: 'php_files/register.php',
                     type: 'POST',
                     contentType: 'application/json',
-                    data: JSON.stringify({ email: email, password: password }),
+                    data: JSON.stringify({ 
+                        name: name,
+                        email: email, 
+                        password: password 
+                    }),
                     success: function(res) {
                         if (res.status === 'success') {
                             alert(res.message);

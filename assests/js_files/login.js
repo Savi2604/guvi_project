@@ -1,18 +1,28 @@
 $(document).ready(function() {
-    $("#loginBtn").click(function(e) {
-        e.preventDefault(); 
-        submitLogin();
+    // Input-la enter key adichaalum login aagura maadhiri
+    $("#login_password").keypress(function(e) {
+        if(e.which == 13) {
+            submitLogin();
+        }
     });
 });
 
 function submitLogin() {
-    let email = $("#login_email").val().trim();
+    // MUKKIAM: trim() and toLowerCase() to match registration data
+    let rawEmail = $("#login_email").val().trim();
+    let email = rawEmail.toLowerCase(); 
     let password = $("#login_password").val().trim();
     
-    // 1. Gmail Validation
-    let gmailRegex = /^[a-z0-9](\.?[a-z0-9]){5,}@gmail\.com$/;
+    // 1. Strict Email Check (Starts with a-z and ends with @gmail.com)
+    let gmailRegex = /^[a-z][a-z0-9._%+-]*@gmail\.com$/;
+    
     if (!gmailRegex.test(email)) {
-        alert("Error: Only @gmail.com addresses are allowed!");
+        alert("Error: Email must start with a small letter and end with @gmail.com!");
+        return;
+    }
+
+    if (password === "") {
+        alert("Please enter your password!");
         return;
     }
 
@@ -23,29 +33,24 @@ function submitLogin() {
         contentType: 'application/json',
         dataType: 'json',
         success: function(response) {
-            console.log("Server Response:", response);
-
             if(response.status === "success") {
                 if(response.token) {
-                    // STEP 1: Conflict varaama irukka clear pannuvom
-                    localStorage.removeItem("token");
-                    localStorage.removeItem("userEmail");
+                    // Previous session-ah clear pannuvom
+                    localStorage.clear();
 
-                    // STEP 2: Fresh-aa set pannuvom
+                    // Fresh data-va store pannuvom
                     localStorage.setItem("token", response.token); 
-                    localStorage.setItem("userEmail", email);
+                    localStorage.setItem("userEmail", email); // Storing lowercase email
                     
-                    // Console-la check panna
-                    console.log("Storage Updated! Email: ", localStorage.getItem("userEmail"));
+                    console.log("Login Success! Storage Updated.");
 
-                    // STEP 3: Oru 200ms delay kuduthu redirect pannuvom
-                    // Idhu browser storage register aaga time kudukkum
+                    // Small delay for browser storage to register
                     setTimeout(function() {
                         window.location.href = "profile.html"; 
                     }, 200);
                     
                 } else {
-                    alert("Server Error: Token not found in response.");
+                    alert("Server Error: Token missing!");
                 }
             } else {
                 alert(response.message || "Invalid Credentials"); 
@@ -53,7 +58,7 @@ function submitLogin() {
         },
         error: function(xhr, status, error) {
             console.error("AJAX Error:", status, error);
-            alert("Fatal Error: Server-ah reach panna mudiyala.");
+            alert("Fatal Error: Cannot reach the server.");
         }
     });
 }
