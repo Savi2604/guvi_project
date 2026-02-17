@@ -36,7 +36,7 @@ function submitLogin() {
                     localStorage.setItem("userEmail", email);
                     
                     alert("Login Successful!");
-                    window.location.href = "display.html"; 
+                    window.location.href = "profile.html"; 
                 } else {
                     alert("Server Error: Token not found in response.");
                 }
