@@ -5,12 +5,12 @@ ob_clean();
 header('Content-Type: application/json');
 
 $data = json_decode(file_get_contents('php://input'), true);
-$name = trim($data['name'] ?? '');
+//$name = trim($data['name'] ?? '');
 $email = trim($data['email'] ?? ''); // No strtolower here to maintain strictness
 $password = $data['password'] ?? '';
 
 // 1. Basic Empty Check
-if (empty($name) || empty($email) || empty($password)) {
+if (empty($email) || empty($password)) {
     echo json_encode(['status' => 'error', 'message' => 'All fields are required!']);
     exit;
 }
@@ -47,13 +47,12 @@ try {
     }
 
     // Insert into MySQL
-    $stmt = $mysql_conn->prepare("INSERT INTO users (name, email, password) VALUES (?, ?, ?)");
-    $stmt->bind_param("sss", $name, $email, $password);
+    $stmt = $mysql_conn->prepare("INSERT INTO users (email, password) VALUES (?, ?)");
+    $stmt->bind_param("sss",$email, $password);
     $stmt->execute();
 
-    // Insert into MongoDB (Profile)
+    // Insert into MongoDB (Profile
     $profile_db->insertOne([
-        'name' => $name,
         'email' => $email,
         'age' => 'N/A',
         'dob' => 'N/A',
