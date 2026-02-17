@@ -37,7 +37,6 @@
                         <p><strong>DOB:</strong> <span id="d_dob"></span></p>
                         <p><strong>Contact:</strong> <span id="d_contact"></span></p>
                     </div>
-                    
                     <hr>
                     <a href="profile.html" class="btn btn-secondary w-100">Back to Profile</a>
                 </div>
@@ -49,21 +48,20 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script>
     $(document).ready(function() {
-        // 1. Storage-la irundhu fresh data fetch panradhu
+        // 1. Fresh values fetch pannuvom
         let email = localStorage.getItem("userEmail");
         let token = localStorage.getItem("token");
 
-        console.log("Checking session for:", email);
+        console.log("Storage Check -> Email:", email, "| Token:", token);
 
-        // 2. Strict Check: Data illai-na alert kaataama login-ku anupuvom
-        // Sila neram delay aana alert-ah thavirukka indha chinna logic
-        if(!email || !token || email === "undefined") { 
-            console.error("Session data missing!");
+        // 2. Strict Check: Data illana alert illama login-ku anupuvom
+        if(!email || !token || email === "undefined" || email === "null") { 
+            console.error("Session credentials missing from storage!");
             window.location.href = "login.html"; 
             return; 
         }
 
-        // 3. AJAX Request
+        // 3. AJAX Verification
         $.ajax({
             url: 'php_files/view_profile.php',
             type: 'POST',
@@ -71,19 +69,18 @@
             dataType: 'json',
             data: JSON.stringify({ email: email, token: token }),
             success: function(res) {
-                console.log("Profile Data:", res);
                 if(res && res.status === 'success') {
-                    $("#d_name").text(res.data.fullName || res.data.name || "User Name");
+                    $("#d_name").text(res.data.fullName || res.data.name || "User");
                     $("#d_email").text(email);
                     $("#d_age").text(res.data.age || "N/A");
                     $("#d_dob").text(res.data.dob || "N/A");
                     $("#d_contact").text(res.data.contact || "N/A");
                     
-                    if(res.data.image && res.data.image !== "") {
+                    if(res.data.image) {
                         $("#d_image").attr("src", res.data.image);
                     }
                 } else {
-                    // Token mismatch error handle panradhu
+                    // Alert vandhale logic fail-nu artham
                     alert("Session expired! Please login again.");
                     localStorage.removeItem("token");
                     localStorage.removeItem("userEmail");
@@ -91,7 +88,7 @@
                 }
             },
             error: function() {
-                alert("Fatal Error: Could not load profile. Check PHP connection.");
+                alert("Fatal Error: Server connectivity issue.");
             }
         });
     });
