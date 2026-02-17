@@ -17,7 +17,6 @@ if (!$email) {
 
 try {
     // 4. MongoDB-la irundhu user profile fetch panradhu
-    // Unga db.php-la irukka '$profile_db' variable-ah use panraen
     $user_profile = $profile_db->findOne(['email' => $email]);
 
     if ($user_profile) {
@@ -25,11 +24,12 @@ try {
         echo json_encode([
             'status' => 'success',
             'data' => [
-                'name' => $user_profile['name'] ?? 'N/A',
+                // FIX: 'name' or 'fullName' or 'full_name' - edhu irundhaalum fetch pannum
+                'name' => $user_profile['name'] ?? $user_profile['fullName'] ?? $user_profile['full_name'] ?? 'N/A',
                 'age' => $user_profile['age'] ?? 'N/A',
                 'dob' => $user_profile['dob'] ?? 'N/A',
                 'contact' => $user_profile['contact'] ?? 'N/A',
-                'image' => $user_profile['image'] ?? '' // Profile pic irundha
+                'image' => $user_profile['image'] ?? '' 
             ]
         ]);
     } else {
