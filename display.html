@@ -70,7 +70,6 @@
             data: JSON.stringify({ email: email, token: token }),
             success: function(res) {
                 if(res && res.status === 'success') {
-                    $("#d_name").text(res.data.fullName || res.data.name || "User");
                     $("#d_email").text(email);
                     $("#d_age").text(res.data.age || "N/A");
                     $("#d_dob").text(res.data.dob || "N/A");

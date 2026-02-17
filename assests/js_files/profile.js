@@ -64,7 +64,6 @@ $(document).ready(function() {
         let profileData = {
             email: email,
             token: token, // Refresh aana dynamic token
-            fullName: $("#fullName").val(), 
             age: $("#age").val(),
             dob: $("#dob").val(),
             contact: $("#contact").val(),
