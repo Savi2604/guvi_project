@@ -27,7 +27,7 @@
                 </div>
                 <div class="card-body text-center">
                     <div class="profile-pic-container">
-                        <img id="d_image" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6f8D8O2m8Xv3L-u-n_v0f_8Z6N_YqW2X6xA&s" alt="Profile Picture">
+                        <img id="d_image" src="https://via.placeholder.com/150" alt="Profile Picture">
                     </div>
 
                     <div class="text-start px-4">
@@ -49,29 +49,30 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script>
     $(document).ready(function() {
-        // 1. Fetching the FRESH token generated during login
+        // 1. Storage-la irundhu fresh data fetch panradhu
         let email = localStorage.getItem("userEmail");
         let token = localStorage.getItem("token");
 
-        // 2. Strict Security: If no token, redirect to login
-        if(!email || !token) { 
-            alert("Security: No active session found. Please login.");
+        console.log("Checking session for:", email);
+
+        // 2. Strict Check: Data illai-na alert kaataama login-ku anupuvom
+        // Sila neram delay aana alert-ah thavirukka indha chinna logic
+        if(!email || !token || email === "undefined") { 
+            console.error("Session data missing!");
             window.location.href = "login.html"; 
             return; 
         }
 
-        console.log("Using Token for Fetch:", token); // Checking if it's dynamic
-
-        // 3. AJAX Request - Sending Dynamic Token to Backend
+        // 3. AJAX Request
         $.ajax({
             url: 'php_files/view_profile.php',
             type: 'POST',
             contentType: 'application/json',
             dataType: 'json',
-            data: JSON.stringify({ email: email, token: token }), // Both sent for Redis verification
+            data: JSON.stringify({ email: email, token: token }),
             success: function(res) {
+                console.log("Profile Data:", res);
                 if(res && res.status === 'success') {
-                    // Update HTML with MongoDB data
                     $("#d_name").text(res.data.fullName || res.data.name || "User Name");
                     $("#d_email").text(email);
                     $("#d_age").text(res.data.age || "N/A");
@@ -82,15 +83,15 @@
                         $("#d_image").attr("src", res.data.image);
                     }
                 } else {
-                    // 4. Token Mismatch Fix: If token is old, force re-login
-                    alert("Session expired or Invalid Token! Please login again.");
-                    localStorage.clear(); // Removing old/bad token
+                    // Token mismatch error handle panradhu
+                    alert("Session expired! Please login again.");
+                    localStorage.removeItem("token");
+                    localStorage.removeItem("userEmail");
                     window.location.href = "login.html";
                 }
             },
             error: function() {
-                console.error("Fatal Error: Could not reach view_profile.php. Check server path.");
-                alert("Server Error! Check if view_profile.php exists.");
+                alert("Fatal Error: Could not load profile. Check PHP connection.");
             }
         });
     });
